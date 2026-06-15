@@ -1,11 +1,15 @@
-sentence-transformers==3.4.1
+# Embedding + vector store
+sentence-transformers==5.5.1
+transformers==5.12.0
+huggingface-hub==1.19.0
 chromadb>=0.6.0
+
+# LLM client + config
 groq==0.15.0
 python-dotenv==1.0.1
 
-# Query interface — add whichever you use for Milestone 5:
-# gradio>=6.9.0
-# streamlit>=1.40.0
+# Query interface
+gradio==6.18.0
 
 # Document ingestion — add if your documents/ folder contains .pdf files:
 # pdfplumber==0.11.4
