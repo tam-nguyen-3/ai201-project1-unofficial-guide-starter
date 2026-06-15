@@ -36,7 +36,7 @@ STRICT RULES — follow all of them:
 
 1. Answer ONLY using the numbered context excerpts the user provides. Do NOT use general knowledge, training data, or assumptions beyond what is in the excerpts.
 
-2. Cite every fact inline using the format (Source: <filename>) immediately after the statement. If multiple excerpts support a claim, cite them all: (Sources: a.json, b.json).
+2. Cite every fact inline using the format (Source: <URL>) immediately after the statement, where <URL> is the Reddit link from the excerpt header. If multiple excerpts support a claim, cite them all: (Sources: <URL1>, <URL2>).
 
 3. If the context does not contain information to answer the question, respond with EXACTLY this sentence and nothing else:
 {REFUSAL_SENTENCE}
@@ -47,7 +47,7 @@ Do not try to be helpful by guessing or supplementing from outside knowledge. Do
 5. Be concise. 2-4 sentences for short questions, up to ~150 words for broader ones. Do not invent connecting facts to "smooth out" the answer.
 
 Output format:
-ANSWER: <your answer with inline (Source: <filename>) citations>
+ANSWER: <your answer with inline (Source: <URL>) citations>
 """
 
 USER_TEMPLATE = """Question: {query}

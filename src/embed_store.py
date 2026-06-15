@@ -12,7 +12,7 @@ from pathlib import Path
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-from src.ingest import CHUNKS_FILE, REPO_ROOT
+from src.ingest import CHUNKS_FILE, REDDIT_THREAD_URLS, REPO_ROOT, _slug_from_url
 
 CHROMA_DIR = REPO_ROOT / "chroma_db"
 COLLECTION_NAME = "taipei_guide"
@@ -27,22 +27,30 @@ def load_chunks(path: Path = CHUNKS_FILE) -> list[dict]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def _source_from_permalink(permalink: str) -> str:
-    """Map a Reddit permalink back to the saved JSON filename in documents/raw/."""
-    # https://www.reddit.com/r/taiwan/comments/<id>/<slug>/
-    parts = permalink.rstrip("/").split("/")
-    return f"{parts[-1]}.json"
+# Map each saved JSON filename (the chunks' on-disk source) to the canonical
+# Reddit URL listed in planning.md.  This is what we surface as the `source`
+# field on every chunk so citations in generated answers are clickable links.
+SOURCE_URL_MAP: dict[str, str] = {
+    f"{_slug_from_url(u)}.json": u for u in REDDIT_THREAD_URLS
+}
+
+
+def _source_url_for(permalink: str) -> str:
+    """Look up the planning.md URL for a chunk via its on-disk filename."""
+    slug = permalink.rstrip("/").split("/")[-1]
+    filename = f"{slug}.json"
+    return SOURCE_URL_MAP.get(filename, permalink)
 
 
 def _build_metadatas(chunks: list[dict]) -> list[dict]:
-    """Attach source filename and per-document position to each chunk."""
+    """Attach Reddit source URL and per-document position to each chunk."""
     position_in_doc: dict[str, int] = {}
     metas: list[dict] = []
     for c in chunks:
         pos = position_in_doc.get(c["thread_id"], 0)
         metas.append(
             {
-                "source": _source_from_permalink(c["permalink"]),
+                "source": _source_url_for(c["permalink"]),
                 "position": pos,
                 "thread_id": c["thread_id"],
                 "thread_title": c["thread_title"],
